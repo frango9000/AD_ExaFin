@@ -9,8 +9,15 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
+    maven {
+        url "http://m2.objectdb.com"
+    }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
+    compile group:  'com.objectdb', name: 'objectdb', version: '2.8.1'
+
+    compile 'org.mongodb:mongo-java-driver:3.12.1'
 }
