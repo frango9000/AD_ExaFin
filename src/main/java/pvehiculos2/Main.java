@@ -1,19 +1,23 @@
-package pvehiculos;
+package pvehiculos2;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import db.OracleDB;
-import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import org.bson.Document;
+import pvehiculos.Clientes;
+import pvehiculos.Vehiculos;
 
 public class Main {
+
     public static void main(String[] args) {
         OracleDB.getSession().setAutoclose(false);
 
@@ -23,6 +27,23 @@ public class Main {
         MongoClient mongoClient = new MongoClient(OracleDB.SERVER_HOSTNAME, 27017);
         MongoDatabase mongoDB = mongoClient.getDatabase("test");
         MongoCollection<Document> collection = mongoDB.getCollection("vendas");
+
+        try (Statement statement = OracleDB.getSession().getConn().createStatement()) {
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM FINALVEH");
+            while (resultSet.next()) {
+                int id = resultSet.getInt(1);
+                String dni = resultSet.getString(2);
+
+                //objeto>
+                String codveh = resultSet.getString(3);
+                int tasa = resultSet.getInt(4);
+
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         FindIterable<Document> docs = collection.find();
         for (Document document : docs) {
             System.out.println(document);
@@ -46,16 +67,7 @@ public class Main {
 
             long prezoFinal = prezoOrixe - ((2019 - anoMatricula) * 500) - (descuento ? 500 : 0);
 
-            try (PreparedStatement preparedStatement = OracleDB.getSession().getConn().prepareStatement("INSERT INTO FINALVEH VALUES (?, ?, ?, TIPO_VEHF(?, ?))")) {
-                preparedStatement.setInt(1, id);
-                preparedStatement.setString(2, dni);
-                preparedStatement.setString(3, nomec);
-                preparedStatement.setString(4, nombreVehiculo);
-                preparedStatement.setLong(5, prezoFinal);
-                preparedStatement.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+
         }
         OracleDB.getSession().setAutoclose(true);
         mongoClient.close();
